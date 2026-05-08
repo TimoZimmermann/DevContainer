@@ -1,8 +1,7 @@
-# docker-compose.yml
 services:
   ros2-jazzy:
     build:
-      context: .
+      context: ..
       dockerfile: locali/Dockerfile
 
     image: ros2-jazzy-robot-localization
@@ -14,13 +13,13 @@ services:
     working_dir: /ros2_ws
 
     volumes:
-      - ./src:/ros2_ws/src
-      - ./bags:/ros2_ws/bags
-      - ./config:/ros2_ws/config
+      - ../src:/ros2_ws/src
+      - ../bags:/ros2_ws/bags
+      - ../config:/ros2_ws/config
 
     environment:
-      - ROS_DOMAIN_ID=0
-      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      ROS_DOMAIN_ID: 0
+      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
 
     network_mode: host
     ipc: host
