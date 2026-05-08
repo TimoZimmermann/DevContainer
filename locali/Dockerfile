@@ -17,6 +17,8 @@ WORKDIR /ros2_ws
 
 RUN mkdir -p src
 
-RUN echo "source /opt/ros/jazzy/setup.bash" >> /root/.bashrc
+COPY locali/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["bash"]
