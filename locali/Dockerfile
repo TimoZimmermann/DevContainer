@@ -6,7 +6,8 @@ SHELL ["/bin/bash", "-c"]
 ARG ROBOT_LOCALIZATION_REPO=https://github.com/cra-ros-pkg/robot_localization.git
 ARG ROBOT_LOCALIZATION_SHA
 
-RUN test -n "${ROBOT_LOCALIZATION_SHA}" || (echo "ROBOT_LOCALIZATION_SHA is not set" && exit 1)
+RUN [[ "${ROBOT_LOCALIZATION_SHA}" =~ ^[0-9a-f]{40}$ ]] || \
+    (echo "ROBOT_LOCALIZATION_SHA must be a 40-character git commit hash" && exit 1)
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
@@ -68,14 +69,14 @@ RUN source /opt/ros/jazzy/setup.bash && \
 
 WORKDIR /ws
 
-RUN mkdir -p /ws/src /ws/config /ws/bags
+RUN mkdir -p /ws/config /ws/bags
 
 RUN echo "source /opt/ros/jazzy/setup.bash" >> /etc/bash.bashrc && \
-    echo "source /opt/robot_localization_ws/install/setup.bash" >> /etc/bash.bashrc && \
-    echo "if [ -f /ws/install/setup.bash ]; then source /ws/install/setup.bash; fi" >> /etc/bash.bashrc
+    echo "source /opt/robot_localization_ws/install/setup.bash" >> /etc/bash.bashrc
 
 COPY locali/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["bash"]
+
+CMD ["ros2", "run", "robot_localization", "ekf_node", "--ros-args", "--params-file", "/ws/config/localization/local_ekf.yaml"]
