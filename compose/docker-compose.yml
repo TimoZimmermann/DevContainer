@@ -26,10 +26,8 @@ services:
       DISPLAY: ${DISPLAY:-}
       QT_X11_NO_MITSHM: "1"
       LOCALIZATION_CONFIG: ${LOCALIZATION_CONFIG}
-      LOCALIZATION_COMMAND: ${LOCALIZATION_COMMAND:-bash}
 
     volumes:
-      - ${FLORIBOT_BASE_REPO_PATH}/src:/ws/src/floribot_base:ro
       - ${FLORIBOT_BASE_REPO_PATH}/config:/ws/config:ro
       - ../bags:/ws/bags
       - /dev:/dev
@@ -43,13 +41,6 @@ services:
       - |
           source /opt/ros/jazzy/setup.bash
           source /opt/robot_localization_ws/install/setup.bash
-
-          if [ -d /ws/src ] && find /ws/src -mindepth 1 -maxdepth 3 -name package.xml | grep -q .; then
-            rosdep install --from-paths /ws/src --ignore-src -r -y || true
-            colcon build --symlink-install
-            source /ws/install/setup.bash
-          fi
-
-          exec ${LOCALIZATION_COMMAND}
+          exec ros2 run robot_localization ekf_node --ros-args --params-file ${LOCALIZATION_CONFIG}
 
     restart: unless-stopped
