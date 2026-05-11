@@ -6,6 +6,8 @@ SHELL ["/bin/bash", "-c"]
 ARG ROBOT_LOCALIZATION_REPO=https://github.com/cra-ros-pkg/robot_localization.git
 ARG ROBOT_LOCALIZATION_SHA
 
+RUN test -n "${ROBOT_LOCALIZATION_SHA}" || (echo "ROBOT_LOCALIZATION_SHA is not set" && exit 1)
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     build-essential \
@@ -17,6 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-numpy \
     libeigen3-dev \
     libboost-dev \
+    geographiclib-tools \
+    libgeographiclib-dev \
     ros-jazzy-rmw-fastrtps-cpp \
     ros-jazzy-rclcpp \
     ros-jazzy-rclpy \
@@ -29,7 +33,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-diagnostic-msgs \
     ros-jazzy-diagnostic-updater \
     ros-jazzy-angles \
-    ros-jazzy-geographiclib \
     ros-jazzy-tf2 \
     ros-jazzy-tf2-ros \
     ros-jazzy-tf2-eigen \
