@@ -6,6 +6,8 @@ services:
       dockerfile: locali/Dockerfile
       args:
         ROBOT_LOCALIZATION_SHA: ${ROBOT_LOCALIZATION_SHA}
+        FLORIBOT_BASE_REPO: ${FLORIBOT_BASE_REPO}
+        FLORIBOT_BASE_REF: ${FLORIBOT_BASE_REF}
 
     image: floribot-localization:jazzy
     container_name: floribot-localization
@@ -28,7 +30,6 @@ services:
       LOCALIZATION_CONFIG: ${LOCALIZATION_CONFIG}
 
     volumes:
-      - ${FLORIBOT_BASE_REPO_PATH}/config:/ws/config:ro
       - ../bags:/ws/bags
       - /dev:/dev
       - /dev/bus/usb:/dev/bus/usb
@@ -41,6 +42,15 @@ services:
       - |
           source /opt/ros/jazzy/setup.bash
           source /opt/robot_localization_ws/install/setup.bash
+
+          echo "Using LOCALIZATION_CONFIG=${LOCALIZATION_CONFIG}"
+          test -f "${LOCALIZATION_CONFIG}" || {
+            echo "ERROR: params file not found: ${LOCALIZATION_CONFIG}"
+            echo "Available files in /ws/config:"
+            find /ws/config -maxdepth 4 -type f || true
+            exit 1
+          }
+
           exec ros2 run robot_localization ekf_node --ros-args --params-file ${LOCALIZATION_CONFIG}
 
     restart: unless-stopped
