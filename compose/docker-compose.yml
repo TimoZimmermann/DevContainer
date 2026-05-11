@@ -1,27 +1,44 @@
 services:
-  ros2-jazzy:
+  floribot-localization:
+    profiles: ["localization", "robot"]
     build:
       context: ..
       dockerfile: locali/Dockerfile
-
-    image: ros2-jazzy-robot-localization
-    container_name: ros2-jazzy-robot-localization
-
-    stdin_open: true
-    tty: true
-
-    working_dir: /ros2_ws
-
-    volumes:
-      - ../src:/ros2_ws/src
-      - ../bags:/ros2_ws/bags
-      - ../config:/ros2_ws/config
-
-    environment:
-      ROS_DOMAIN_ID: 0
-      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+    image: floribot-localization:jazzy
+    container_name: floribot-localization
 
     network_mode: host
     ipc: host
+    pid: host
+    privileged: true
 
-    command: bash
+    stdin_open: true
+    tty: true
+    working_dir: /ws
+
+    environment:
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID}
+      ROS_AUTOMATIC_DISCOVERY_RANGE: ${ROS_AUTOMATIC_DISCOVERY_RANGE}
+      RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION}
+      DISPLAY: ${DISPLAY:-}
+      QT_X11_NO_MITSHM: "1"
+
+    volumes:
+      - ../src:/ws/src
+      - ../config:/ws/config
+      - ../bags:/ws/bags
+      - /dev:/dev
+      - /dev/bus/usb:/dev/bus/usb
+      - /run/udev:/run/udev:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+    command:
+      - bash
+      - -lc
+      - |
+          if [ -d /ws/src ] && find /ws/src -mindepth 1 -maxdepth 2 -name package.xml | grep -q .; then
+            rosdep install --from-paths /ws/src --ignore-src -r -y || true
+            colcon build --symlink-install
+            source /ws/install/setup.bash
+          fi
+          exec ${LOCALIZATION_COMMAND:-bash}
