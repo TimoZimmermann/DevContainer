@@ -6,6 +6,9 @@ SHELL ["/bin/bash", "-c"]
 ARG ROBOT_LOCALIZATION_REPO=https://github.com/cra-ros-pkg/robot_localization.git
 ARG ROBOT_LOCALIZATION_SHA
 
+ARG FLORIBOT_BASE_REPO=https://github.com/Team-FloriBot/FloriBot4.0_ROS2_Jazzy_Base.git
+ARG FLORIBOT_BASE_REF=main
+
 RUN [[ "${ROBOT_LOCALIZATION_SHA}" =~ ^[0-9a-f]{40}$ ]] || \
     (echo "ROBOT_LOCALIZATION_SHA must be a 40-character git commit hash" && exit 1)
 
@@ -69,7 +72,11 @@ RUN source /opt/ros/jazzy/setup.bash && \
 
 WORKDIR /ws
 
-RUN mkdir -p /ws/config /ws/bags
+RUN git clone --branch ${FLORIBOT_BASE_REF} --depth 1 ${FLORIBOT_BASE_REPO} /tmp/floribot_base && \
+    mkdir -p /ws/config /ws/bags && \
+    cp -r /tmp/floribot_base/config/* /ws/config/ && \
+    test -f /ws/config/localization/local_ekf.yaml && \
+    rm -rf /tmp/floribot_base
 
 RUN echo "source /opt/ros/jazzy/setup.bash" >> /etc/bash.bashrc && \
     echo "source /opt/robot_localization_ws/install/setup.bash" >> /etc/bash.bashrc
