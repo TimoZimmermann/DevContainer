@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libboost-dev \
     geographiclib-tools \
     libgeographiclib-dev \
-    ros-jazzy-rmw-fastrtps-cpp \
+    ros-jazzy-rmw-cyclonedds-cpp \
     ros-jazzy-rclcpp \
     ros-jazzy-rclpy \
     ros-jazzy-std-msgs \
