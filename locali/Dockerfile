@@ -86,4 +86,4 @@ RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD ["ros2", "run", "robot_localization", "ekf_node", "--ros-args", "--params-file", "/ws/config/localization/local_ekf.yaml"]
+CMD ["ros2", "run", "robot_localization", "ekf_node", "--ros-args", "--params-file", "/ws/config/localization/local_ekf.yaml", "-p", "publish_tf:=false"]
